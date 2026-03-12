@@ -70,6 +70,17 @@ def train(rank, world_size, epochs=5):
 
     cleanup()
 
+def main():
+    world_size = torch.cuda.device_count()
+    if world_size < 1:
+        raise RuntimeError("tensor_parallelism_example.py requires at least 1 CUDA device")
+    mp = torch.multiprocessing
+    mp.spawn(train, args=(world_size,), nprocs=world_size, join=True)
+
+
+if __name__ == '__main__':
+    main()
+
 # Note: Requires to be launched with torch.distributed.launch or torchrun for multiple GPUs
 # Example:
 # torchrun --nproc_per_node=2 tensor_parallelism_example.py
